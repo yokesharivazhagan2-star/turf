@@ -1,3 +1,17 @@
+/**
+ * ============================================================================
+ * TURFBOOK BACKEND API & REAL-TIME WEBSOCKET GATEWAY
+ * ============================================================================
+ * Architecture Overview:
+ * - Express.js REST API providing marketplace discovery, booking mutex, and auth
+ * - In-memory transactional data store initialized from seed data
+ * - Bi-directional WebSocket server (/ws) broadcasting real-time slot state changes
+ * - Haversine GPS distance calculation for nearby turf discovery
+ * - 5-minute mutex slot hold engine protecting against checkout race conditions
+ * - Role-Based Access Control (PLAYER, OWNER, ADMIN)
+ * ============================================================================
+ */
+
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';

@@ -149,7 +149,9 @@ async function runAllTests() {
 
   // --- 8. ADVANCE DATE AVAILABILITY & DYNAMIC PRICING ---
   const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Use a dynamic future date offset (3 to 25 days ahead) to ensure idempotency across consecutive runs
+  const dayOffset = (Math.floor(Date.now() / 1000) % 20) + 4;
+  tomorrow.setDate(tomorrow.getDate() + dayOffset);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
   const slotsRes = await request(`/api/turfs/trf-1/slots?date=${tomorrowStr}`);

@@ -13,6 +13,7 @@ import ProfilePage from './pages/ProfilePage';
 import TurfOwnerDashboard from './pages/TurfOwnerDashboard';
 import PlatformAdminDashboard from './pages/PlatformAdminDashboard';
 import BookingBottomSheet from './components/booking/BookingBottomSheet';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { Bell } from 'lucide-react';
 
 function AppContent() {
@@ -30,22 +31,30 @@ function AppContent() {
   return (
     <div className="relative min-h-screen text-white select-none">
       
-      {/* 3D Animated Looping Sports Complex Background System */}
-      <AnimatedSportsBackground currentScreen={currentScreen} />
+      {/* 3D Animated Looping Sports Complex Background System with Error Boundary */}
+      <ErrorBoundary fallback={() => null}>
+        <AnimatedSportsBackground currentScreen={currentScreen} />
+      </ErrorBoundary>
 
       {/* App Header */}
       <AppHeader onOpenSearch={() => setIsSearchOpen(true)} />
 
-      {/* Main Screen Content */}
+      {/* Main Screen Content with Error Boundary */}
       <main className="relative z-10">
-        {currentScreen === 'HOME' && <PlayerHome onOpenSearch={() => setIsSearchOpen(true)} />}
-        {currentScreen === 'EXPLORE' && <ExplorePage />}
-        {currentScreen === 'MAP' && <MapPage />}
-        {currentScreen === 'TURF_DETAILS' && <TurfDetails />}
-        {currentScreen === 'BOOKINGS' && <BookingsList />}
-        {currentScreen === 'PROFILE' && <ProfilePage />}
-        {currentScreen === 'OWNER_DASHBOARD' && <TurfOwnerDashboard />}
-        {currentScreen === 'ADMIN_PORTAL' && <PlatformAdminDashboard />}
+        <ErrorBoundary title="Screen Error" description="Unable to render this screen. Please try navigating to another screen.">
+          {currentScreen === 'HOME' && <PlayerHome onOpenSearch={() => setIsSearchOpen(true)} />}
+          {currentScreen === 'EXPLORE' && <ExplorePage />}
+          {currentScreen === 'MAP' && (
+            <ErrorBoundary title="Map Error" description="An error occurred while loading the interactive map.">
+              <MapPage />
+            </ErrorBoundary>
+          )}
+          {currentScreen === 'TURF_DETAILS' && <TurfDetails />}
+          {currentScreen === 'BOOKINGS' && <BookingsList />}
+          {currentScreen === 'PROFILE' && <ProfilePage />}
+          {currentScreen === 'OWNER_DASHBOARD' && <TurfOwnerDashboard />}
+          {currentScreen === 'ADMIN_PORTAL' && <PlatformAdminDashboard />}
+        </ErrorBoundary>
       </main>
 
       {/* Full Screen App Search Modal */}
@@ -81,5 +90,9 @@ function AppContent() {
 }
 
 export default function App() {
-  return <AppContent />;
+  return (
+    <ErrorBoundary title="TurfBook Application Error" description="We encountered a critical runtime error. Please reload to restore session.">
+      <AppContent />
+    </ErrorBoundary>
+  );
 }
