@@ -1,0 +1,271 @@
+@import "tailwindcss";
+
+:root {
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Color Palette */
+  --bg-core: #070a10;
+  --bg-surface: #0e1524;
+  --bg-surface-elevated: #151f33;
+  --bg-glass: rgba(14, 21, 36, 0.78);
+  --bg-glass-card: rgba(21, 31, 51, 0.65);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-highlight: rgba(34, 197, 94, 0.35);
+
+  /* Turf Sports Accents */
+  --turf-green: #22c55e;
+  --turf-green-hover: #16a34a;
+  --turf-green-light: #4ade80;
+  --turf-green-glow: rgba(34, 197, 94, 0.28);
+  --turf-dark-green: #064e3b;
+
+  /* Status Colors */
+  --status-available: #22c55e;
+  --status-holding: #f59e0b;
+  --status-holding-glow: rgba(245, 158, 11, 0.35);
+  --status-booked: #64748b;
+  --status-blocked: #334155;
+  --status-error: #ef4444;
+
+  /* Text Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-green: 0 4px 20px rgba(34, 197, 94, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-core);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-card {
+  background: var(--bg-glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.glass-card:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(34, 197, 94, 0.15);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 10, 16, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--turf-green);
+}
+
+/* Hide scrollbar for clean horizontal swipe */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Pulse animation for Live Holding status */
+@keyframes holdingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+.holding-pulse {
+  animation: holdingPulse 1.8s infinite;
+}
+
+/* Leaflet Map Dark Styling */
+.leaflet-container {
+  background: #090e18 !important;
+  font-family: var(--font-body) !important;
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #0e1524 !important;
+  color: #f8fafc !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8) !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: #0e1524 !important;
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* 3D Animated Background System Layering */
+.sports-3d-system-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sports-3d-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sports-3d-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+}
+
+/* Layer Order: 3D background -> dark readability overlay -> application UI */
+.sports-readability-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Balanced stadium vignette: keeps pitch, floodlights, and ball vibrant while providing high contrast for UI */
+  background: radial-gradient(circle at 50% 35%, rgba(6, 11, 19, 0.15) 0%, rgba(6, 11, 19, 0.65) 75%, rgba(6, 11, 19, 0.92) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* High-Quality Static Fallback when WebGL is unavailable */
+.sports-static-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #060c15;
+  background-image: 
+    radial-gradient(ellipse at 50% 15%, rgba(74, 222, 128, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 85% 25%, rgba(74, 222, 128, 0.22) 0%, transparent 45%),
+    linear-gradient(180deg, #070a10 0%, #0d2818 50%, #05140b 100%);
+  background-size: cover;
+  pointer-events: none;
+}
+
+.stadium-ambient-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 30%, rgba(74, 222, 128, 0.15) 0%, transparent 70%);
+  animation: stadiumGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes stadiumGlow {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.9; }
+}
+
+/* Bottom Sheet Animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+/* Button & Card Micro-Interactions */
+.touch-active:active {
+  transform: scale(0.97);
+}
+
+.turf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
