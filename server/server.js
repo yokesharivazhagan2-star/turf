@@ -14,6 +14,8 @@
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import {
@@ -996,6 +998,23 @@ app.get('/api/admin/stats', (req, res) => {
     totalOwners: owners.length,
     totalPlayers: users.length
   });
+});
+
+// ----------------------------------------------------
+// STATIC FRONTEND ASSETS & SPA ROUTING
+// ----------------------------------------------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.resolve(__dirname, '../dist');
+
+app.use(express.static(distPath));
+
+// Fallback all other GET/HEAD routes to index.html for client-side routing (Express 5 compatible)
+app.use((req, res, next) => {
+  if ((req.method === 'GET' || req.method === 'HEAD') && !req.path.startsWith('/api') && !req.path.startsWith('/ws')) {
+    return res.sendFile(path.join(distPath, 'index.html'));
+  }
+  next();
 });
 
 // Start Server
