@@ -6,11 +6,12 @@ import {
   Map, 
   Ticket, 
   User, 
-  CalendarPlus 
+  CalendarPlus,
+  LogIn 
 } from 'lucide-react';
 
 export default function AppBottomNav({ onQuickBook }) {
-  const { currentScreen, setCurrentScreen, turfs, startBooking } = useApp();
+  const { currentScreen, setCurrentScreen, turfs, startBooking, currentUser } = useApp();
 
   const handleCenterBook = () => {
     if (onQuickBook) {
@@ -94,15 +95,15 @@ export default function AppBottomNav({ onQuickBook }) {
           <span className="text-[10px] tracking-tight">Bookings</span>
         </button>
 
-        {/* Right item 3: Profile */}
+        {/* Right item 3: Profile or Sign In */}
         <button
-          onClick={() => setCurrentScreen('PROFILE')}
+          onClick={() => setCurrentScreen(currentUser ? 'PROFILE' : 'LOGIN')}
           className={`flex flex-col items-center gap-1 transition-all active:scale-95 flex-1 ${
-            currentScreen === 'PROFILE' ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            currentScreen === 'PROFILE' || currentScreen === 'LOGIN' ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <User className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] tracking-tight">Profile</span>
+          {currentUser ? <User className="w-5 h-5 stroke-[2.2]" /> : <LogIn className="w-5 h-5 stroke-[2.2]" />}
+          <span className="text-[10px] tracking-tight">{currentUser ? 'Profile' : 'Sign In'}</span>
         </button>
 
       </div>

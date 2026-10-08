@@ -21,20 +21,29 @@ import {
   ToggleRight 
 } from 'lucide-react';
 
+import PrivacyPolicyModal from '../components/common/PrivacyPolicyModal';
+import HelpSupportModal from '../components/common/HelpSupportModal';
+
 export default function ProfilePage() {
   const { 
     currentUser, 
     activeRole, 
     profiles, 
     switchProfile, 
+    login,
+    logout,
     userBookings, 
     userLocation, 
     setCurrentScreen, 
-    addNotification 
+    addNotification,
+    pushNotificationsEnabled,
+    togglePushNotifications,
+    isUsingRealGps,
+    toggleAutoDetectGps
   } = useApp();
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [gpsAutoLocate, setGpsAutoLocate] = useState(true);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   // Teams list sample
   const teams = [
@@ -220,10 +229,12 @@ export default function ProfilePage() {
               </div>
             </div>
             <button 
-              onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-              className="text-emerald-400"
+              type="button"
+              onClick={togglePushNotifications}
+              className="text-emerald-400 p-0.5 hover:opacity-90 active:scale-95 transition-all"
+              title="Toggle Push Notifications"
             >
-              {notificationsEnabled ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7 text-slate-600" />}
+              {pushNotificationsEnabled ? <ToggleRight className="w-8 h-8 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" /> : <ToggleLeft className="w-8 h-8 text-slate-600" />}
             </button>
           </div>
 
@@ -237,17 +248,20 @@ export default function ProfilePage() {
               </div>
             </div>
             <button 
-              onClick={() => setGpsAutoLocate(!gpsAutoLocate)}
-              className="text-emerald-400"
+              type="button"
+              onClick={toggleAutoDetectGps}
+              className="text-emerald-400 p-0.5 hover:opacity-90 active:scale-95 transition-all"
+              title="Toggle GPS Auto-Detect"
             >
-              {gpsAutoLocate ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7 text-slate-600" />}
+              {isUsingRealGps ? <ToggleRight className="w-8 h-8 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" /> : <ToggleLeft className="w-8 h-8 text-slate-600" />}
             </button>
           </div>
 
           {/* Privacy & Safety */}
-          <div 
-            onClick={() => addNotification('All data encrypted and stored securely', 'info')}
-            className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer"
+          <button 
+            type="button"
+            onClick={() => setIsPrivacyModalOpen(true)}
+            className="w-full flex items-center justify-between p-2.5 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer text-left"
           >
             <div className="flex items-center gap-3">
               <Shield className="w-4 h-4 text-amber-400" />
@@ -257,12 +271,13 @@ export default function ProfilePage() {
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-500" />
-          </div>
+          </button>
 
           {/* Help & Support */}
-          <div 
-            onClick={() => addNotification('TURFBOOK Support: help@turfbook.com (+91 98401 23456)', 'info')}
-            className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer"
+          <button 
+            type="button"
+            onClick={() => setIsHelpModalOpen(true)}
+            className="w-full flex items-center justify-between p-2.5 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer text-left"
           >
             <div className="flex items-center gap-3">
               <HelpCircle className="w-4 h-4 text-emerald-400" />
@@ -272,22 +287,31 @@ export default function ProfilePage() {
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-500" />
-          </div>
+          </button>
         </div>
 
         <div className="pt-2 border-t border-white/10">
           <button
-            onClick={() => {
-              addNotification('Signed out of TURFBOOK session', 'info');
-              setCurrentScreen('HOME');
-            }}
-            className="w-full py-2.5 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+            type="button"
+            onClick={logout}
+            className="w-full py-2.5 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors active:scale-98"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out Session</span>
           </button>
         </div>
       </div>
+
+      {/* Interactive Modals */}
+      <PrivacyPolicyModal 
+        isOpen={isPrivacyModalOpen} 
+        onClose={() => setIsPrivacyModalOpen(false)} 
+      />
+      
+      <HelpSupportModal 
+        isOpen={isHelpModalOpen} 
+        onClose={() => setIsHelpModalOpen(false)} 
+      />
 
     </div>
   );

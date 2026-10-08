@@ -12,6 +12,7 @@ import BookingsList from './pages/BookingsList';
 import ProfilePage from './pages/ProfilePage';
 import TurfOwnerDashboard from './pages/TurfOwnerDashboard';
 import PlatformAdminDashboard from './pages/PlatformAdminDashboard';
+import LoginPage from './pages/LoginPage';
 import BookingBottomSheet from './components/booking/BookingBottomSheet';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { Bell } from 'lucide-react';
@@ -52,6 +53,7 @@ function AppContent() {
           {currentScreen === 'TURF_DETAILS' && <TurfDetails />}
           {currentScreen === 'BOOKINGS' && <BookingsList />}
           {currentScreen === 'PROFILE' && <ProfilePage />}
+          {currentScreen === 'LOGIN' && <LoginPage />}
           {currentScreen === 'OWNER_DASHBOARD' && <TurfOwnerDashboard />}
           {currentScreen === 'ADMIN_PORTAL' && <PlatformAdminDashboard />}
         </ErrorBoundary>

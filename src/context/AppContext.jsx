@@ -29,14 +29,41 @@ export const TAMIL_NADU_LOCATIONS = [
 export const COIMBATORE_LOCATIONS = TAMIL_NADU_LOCATIONS;
 
 export function AppProvider({ children }) {
-  // Profiles
+  // Profiles & Auth State with LocalStorage Persistence
   const [profiles, setProfiles] = useState({ players: [], owners: [], admin: null });
-  const [currentUser, setCurrentUser] = useState(null);
-  const [activeRole, setActiveRole] = useState('PLAYER'); // 'PLAYER' | 'OWNER' | 'ADMIN'
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('turfbook_auth');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.user || null;
+      }
+    } catch (e) {
+      console.error('Error reading auth state from localStorage:', e);
+    }
+    return null;
+  });
+  const [activeRole, setActiveRole] = useState(() => {
+    try {
+      const saved = localStorage.getItem('turfbook_auth');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.role || 'PLAYER';
+      }
+    } catch (e) {
+      console.error('Error reading role from localStorage:', e);
+    }
+    return 'PLAYER';
+  });
 
   // Navigation State
-  const [currentScreen, setCurrentScreen] = useState('HOME'); // 'HOME' | 'EXPLORE' | 'MAP' | 'TURF_DETAILS' | 'BOOKINGS' | 'OWNER_DASHBOARD' | 'ADMIN_PORTAL'
+  const [currentScreen, setCurrentScreen] = useState('HOME'); // 'HOME' | 'EXPLORE' | 'MAP' | 'TURF_DETAILS' | 'BOOKINGS' | 'PROFILE' | 'LOGIN' | 'OWNER_DASHBOARD' | 'ADMIN_PORTAL'
   const [selectedTurf, setSelectedTurf] = useState(null);
+
+  // App Settings & Preferences State
+  const [pushNotificationsEnabled, setPushNotificationsEnabled] = useState(() => {
+    return localStorage.getItem('turfbook_push_notifications') !== 'false';
+  });
 
   // GPS / Geolocation State
   const [userLocation, setUserLocation] = useState(TAMIL_NADU_LOCATIONS[0]);
@@ -78,8 +105,16 @@ export function AppProvider({ children }) {
       const res = await fetch('/api/auth/profiles');
       const data = await res.json();
       setProfiles(data);
-      if (!currentUser && data.players?.length) {
-        setCurrentUser(data.players[0]);
+      // Auto-set default player only if never logged out and no user is set
+      const isLoggedOut = localStorage.getItem('turfbook_logged_out') === 'true';
+      if (!currentUser && !isLoggedOut && data.players?.length) {
+        const defaultPlayer = data.players[0];
+        setCurrentUser(defaultPlayer);
+        localStorage.setItem('turfbook_auth', JSON.stringify({
+          user: defaultPlayer,
+          role: 'PLAYER',
+          token: `usr-token-${defaultPlayer.id}`
+        }));
       }
     } catch (err) {
       console.error('Failed to load profiles:', err);
@@ -241,6 +276,13 @@ export function AppProvider({ children }) {
   const switchProfile = (profile, role) => {
     setCurrentUser(profile);
     setActiveRole(role);
+    localStorage.removeItem('turfbook_logged_out');
+    localStorage.setItem('turfbook_auth', JSON.stringify({
+      user: profile,
+      role: role || 'PLAYER',
+      token: `${role.toLowerCase()}-token-${profile.id}`
+    }));
+
     if (role === 'OWNER') {
       setCurrentScreen('OWNER_DASHBOARD');
     } else if (role === 'ADMIN') {
@@ -249,6 +291,119 @@ export function AppProvider({ children }) {
       setCurrentScreen('HOME');
     }
     addNotification(`Switched active profile to ${profile.name} (${role})`, 'success');
+  };
+
+  // Sign In
+  const login = async (email, password, role) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Invalid credentials');
+      }
+
+      localStorage.removeItem('turfbook_logged_out');
+      localStorage.setItem('turfbook_auth', JSON.stringify({
+        user: data.user,
+        role: data.role || role || 'PLAYER',
+        token: data.token
+      }));
+
+      setCurrentUser(data.user);
+      setActiveRole(data.role || role || 'PLAYER');
+
+      if (data.role === 'OWNER') {
+        setCurrentScreen('OWNER_DASHBOARD');
+      } else if (data.role === 'ADMIN') {
+        setCurrentScreen('ADMIN_PORTAL');
+      } else {
+        setCurrentScreen('HOME');
+      }
+
+      addNotification(`Signed in successfully! Welcome, ${data.user.name}.`, 'success');
+      return { success: true, user: data.user };
+    } catch (err) {
+      addNotification(err.message, 'error');
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Register New Account
+  const register = async (formData) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      localStorage.removeItem('turfbook_logged_out');
+      localStorage.setItem('turfbook_auth', JSON.stringify({
+        user: data.user,
+        role: data.role || formData.role || 'PLAYER',
+        token: data.token
+      }));
+
+      setCurrentUser(data.user);
+      setActiveRole(data.role || formData.role || 'PLAYER');
+
+      if (data.role === 'OWNER') {
+        setCurrentScreen('OWNER_DASHBOARD');
+      } else {
+        setCurrentScreen('HOME');
+      }
+
+      addNotification(`Account created! Welcome to TURFBOOK, ${data.user.name}.`, 'success');
+      fetchProfiles();
+      return { success: true, user: data.user };
+    } catch (err) {
+      addNotification(err.message, 'error');
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Sign Out Session
+  const logout = () => {
+    localStorage.removeItem('turfbook_auth');
+    localStorage.setItem('turfbook_logged_out', 'true');
+    setCurrentUser(null);
+    setActiveRole('PLAYER');
+    setCurrentScreen('LOGIN');
+    addNotification('Signed out of TURFBOOK session', 'info');
+  };
+
+  // Toggle Push Notifications Setting
+  const togglePushNotifications = () => {
+    const nextVal = !pushNotificationsEnabled;
+    setPushNotificationsEnabled(nextVal);
+    localStorage.setItem('turfbook_push_notifications', String(nextVal));
+    if (nextVal) {
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission().catch(() => {});
+      }
+      addNotification('🔔 Push Notifications enabled! Real-time match & slot alerts active.', 'success');
+    } else {
+      addNotification('🔕 Push Notifications disabled.', 'info');
+    }
+  };
+
+  // Toggle GPS Auto-detection Setting
+  const toggleAutoDetectGps = () => {
+    if (isUsingRealGps) {
+      setIsUsingRealGps(false);
+      setUserLocation(TAMIL_NADU_LOCATIONS[0]);
+      addNotification('📍 Switched to All Tamil Nadu marketplace view.', 'info');
+    } else {
+      requestRealGps();
+    }
   };
 
   // Open booking bottom-sheet
@@ -277,6 +432,9 @@ export function AppProvider({ children }) {
         currentUser,
         activeRole,
         switchProfile,
+        login,
+        logout,
+        register,
         currentScreen,
         setCurrentScreen,
         selectedTurf,
@@ -286,6 +444,9 @@ export function AppProvider({ children }) {
         isUsingRealGps,
         isGpsLoading,
         requestRealGps,
+        pushNotificationsEnabled,
+        togglePushNotifications,
+        toggleAutoDetectGps,
         turfs,
         setTurfs,
         fetchTurfs,

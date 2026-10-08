@@ -10,7 +10,8 @@ import {
   ShieldCheck, 
   Building2, 
   Sparkles,
-  Check 
+  Check,
+  LogIn 
 } from 'lucide-react';
 
 export default function AppHeader({ onOpenSearch }) {
@@ -244,24 +245,35 @@ export default function AppHeader({ onOpenSearch }) {
             )}
           </div>
 
-          {/* Profile & Role Switcher */}
+          {/* Profile & Role Switcher / Sign In */}
           <div className="relative">
-            <button
-              onClick={() => setCurrentScreen('PROFILE')}
-              className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 border border-white/10 hover:border-emerald-400/50 active:scale-95 transition-all"
-              title="User Profile"
-            >
-              <div className="w-7 h-7 rounded-lg overflow-hidden bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
-                {currentUser?.avatar ? (
-                  <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-4 h-4 text-emerald-400" />
-                )}
-              </div>
-              <span className="text-xs font-bold text-white hidden sm:inline max-w-[80px] truncate">
-                {currentUser?.name?.split(' ')[0] || 'Profile'}
-              </span>
-            </button>
+            {currentUser ? (
+              <button
+                onClick={() => setCurrentScreen('PROFILE')}
+                className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 border border-white/10 hover:border-emerald-400/50 active:scale-95 transition-all"
+                title="User Profile"
+              >
+                <div className="w-7 h-7 rounded-lg overflow-hidden bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                  {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-4 h-4 text-emerald-400" />
+                  )}
+                </div>
+                <span className="text-xs font-bold text-white hidden sm:inline max-w-[80px] truncate">
+                  {currentUser?.name?.split(' ')[0] || 'Profile'}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setCurrentScreen('LOGIN')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 font-black text-xs transition-all active:scale-95 shadow-md shadow-emerald-500/20"
+                title="Sign In to TURFBOOK"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
 
         </div>
