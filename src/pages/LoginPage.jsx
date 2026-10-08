@@ -11,15 +11,12 @@ import {
   EyeOff, 
   ArrowRight, 
   Sparkles, 
-  CheckCircle2, 
   AlertCircle,
-  Compass,
-  Zap,
-  MapPin
+  Compass
 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login, register, setCurrentScreen, profiles } = useApp();
+  const { login, register, setCurrentScreen } = useApp();
 
   const [mode, setMode] = useState('SIGNIN'); // 'SIGNIN' | 'SIGNUP'
   const [selectedRole, setSelectedRole] = useState('PLAYER'); // 'PLAYER' | 'OWNER' | 'ADMIN'
@@ -28,68 +25,12 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Form fields
-  const [email, setEmail] = useState('arun@turfbook.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [sportsHubName, setSportsHubName] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
-
-  // Quick Demo Profiles
-  const demoAccounts = [
-    {
-      role: 'PLAYER',
-      label: 'Arun Kumar',
-      email: 'arun@turfbook.com',
-      badge: 'Player 1',
-      desc: 'Captain • Chennai Strikers',
-      icon: User,
-      color: 'emerald'
-    },
-    {
-      role: 'PLAYER',
-      label: 'Dinesh Karthik',
-      email: 'dinesh@turfbook.com',
-      badge: 'Player 2',
-      desc: 'Kovai Titans • Cricket',
-      icon: User,
-      color: 'emerald'
-    },
-    {
-      role: 'OWNER',
-      label: 'Arun Sports Group',
-      email: 'owner.arun@sportsgroup.in',
-      badge: 'Arena Owner',
-      desc: 'Marina Coastal & Anna Nagar Arena',
-      icon: Building2,
-      color: 'sky'
-    },
-    {
-      role: 'OWNER',
-      label: 'PlaySphere TN',
-      email: 'contact@playsphere.in',
-      badge: 'Arena Owner',
-      desc: 'OMR TechPark & ECR Seaside',
-      icon: Building2,
-      color: 'sky'
-    },
-    {
-      role: 'ADMIN',
-      label: 'Super Admin',
-      email: 'superadmin@turfbook.com',
-      badge: 'Platform Admin',
-      desc: 'Full Verification & Analytics Control',
-      icon: ShieldCheck,
-      color: 'amber'
-    }
-  ];
-
-  const handleSelectDemo = (acc) => {
-    setSelectedRole(acc.role);
-    setEmail(acc.email);
-    setPassword('demo123');
-    setErrorMessage('');
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -328,20 +269,9 @@ export default function LoginPage() {
           )}
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                Password
-              </label>
-              {mode === 'SIGNIN' && (
-                <button
-                  type="button"
-                  onClick={() => setPassword('demo123')}
-                  className="text-[10px] text-emerald-400 hover:underline"
-                >
-                  Use Demo Password
-                </button>
-              )}
-            </div>
+            <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+              Password
+            </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -390,53 +320,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 4. ONE-CLICK DEMO ACCOUNTS BAR */}
-        <div className="mt-5 pt-4 border-t border-white/10">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[10px] uppercase font-black tracking-wider text-slate-400 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-emerald-400" />
-              <span>Instant 1-Click Demo Profiles</span>
-            </span>
-            <span className="text-[10px] text-emerald-400 font-bold">Tap to autofill</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {demoAccounts.map((acc, i) => {
-              const isCurrent = email === acc.email;
-              const Icon = acc.icon;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleSelectDemo(acc)}
-                  className={`p-2.5 rounded-2xl border text-left transition-all active:scale-95 flex items-center justify-between ${
-                    isCurrent
-                      ? 'bg-emerald-500/20 border-emerald-500/60 shadow-sm shadow-emerald-500/20'
-                      : 'bg-slate-950/60 border-white/5 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-                      acc.color === 'emerald' ? 'bg-emerald-500/20 text-emerald-400' :
-                      acc.color === 'sky' ? 'bg-sky-500/20 text-sky-400' :
-                      'bg-amber-500/20 text-amber-400'
-                    }`}>
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-white truncate">{acc.label}</div>
-                      <div className="text-[10px] text-slate-400 truncate">{acc.desc}</div>
-                    </div>
-                  </div>
-                  {isCurrent && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 5. CONTINUE AS GUEST OPTION */}
-        <div className="mt-4 pt-3 border-t border-white/5 text-center">
+        {/* 4. CONTINUE AS GUEST OPTION */}
+        <div className="mt-5 pt-4 border-t border-white/10 text-center">
           <button
             type="button"
             onClick={() => setCurrentScreen('HOME')}
