@@ -65,8 +65,8 @@ function AppContent() {
       {/* Multi-Step Bottom Sheet Booking Checkout Flow */}
       <BookingBottomSheet />
 
-      {/* Mobile-First Fixed Bottom Navigation */}
-      <AppBottomNav onQuickBook={handleQuickBook} />
+      {/* Mobile-First Fixed Bottom Navigation (Hidden on Login Screen) */}
+      {currentScreen !== 'LOGIN' && <AppBottomNav onQuickBook={handleQuickBook} />}
 
       {/* Floating Live Real-Time Toast Notifications */}
       <div className="fixed top-14 right-3 sm:right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm">

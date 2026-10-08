@@ -56,8 +56,23 @@ export function AppProvider({ children }) {
     return 'PLAYER';
   });
 
-  // Navigation State
-  const [currentScreen, setCurrentScreen] = useState('HOME'); // 'HOME' | 'EXPLORE' | 'MAP' | 'TURF_DETAILS' | 'BOOKINGS' | 'PROFILE' | 'LOGIN' | 'OWNER_DASHBOARD' | 'ADMIN_PORTAL'
+  // Navigation State - First start with LOGIN page if not signed in, else go to HOME / Dashboard
+  const [currentScreen, setCurrentScreen] = useState(() => {
+    try {
+      const saved = localStorage.getItem('turfbook_auth');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.user) {
+          if (parsed.role === 'OWNER') return 'OWNER_DASHBOARD';
+          if (parsed.role === 'ADMIN') return 'ADMIN_PORTAL';
+          return 'HOME';
+        }
+      }
+    } catch (e) {
+      console.error('Error determining initial screen:', e);
+    }
+    return 'LOGIN'; // Starts on LOGIN page by default
+  });
   const [selectedTurf, setSelectedTurf] = useState(null);
 
   // App Settings & Preferences State
@@ -105,21 +120,10 @@ export function AppProvider({ children }) {
       const res = await fetch('/api/auth/profiles');
       const data = await res.json();
       setProfiles(data);
-      // Auto-set default player only if never logged out and no user is set
-      const isLoggedOut = localStorage.getItem('turfbook_logged_out') === 'true';
-      if (!currentUser && !isLoggedOut && data.players?.length) {
-        const defaultPlayer = data.players[0];
-        setCurrentUser(defaultPlayer);
-        localStorage.setItem('turfbook_auth', JSON.stringify({
-          user: defaultPlayer,
-          role: 'PLAYER',
-          token: `usr-token-${defaultPlayer.id}`
-        }));
-      }
     } catch (err) {
       console.error('Failed to load profiles:', err);
     }
-  }, [currentUser]);
+  }, []);
 
   // Fetch approved turfs
   const fetchTurfs = useCallback(async () => {
